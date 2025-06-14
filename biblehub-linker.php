@@ -1,26 +1,52 @@
 <?php
 /**
- * Plugin Name: BibleHub Linker
- * Description: Automatically links Bible references to BibleHub.
- * Version: 1.0
- * Author: David Castle
+ * @file
+ * @brief WordPress plugin that detects Bible references in post content and links them to BibleHub.
+ *
+ * @details
+ * This plugin scans WordPress post content for Bible verse references (e.g., John 3:16, Ps 23, 1 Cor 13:4-7),
+ * including support for common abbreviations, multi-word book names, chapter-only references, and optional
+ * Bible version suffixes (e.g., NIV, KJV, NLT). It converts matches into hyperlinks pointing to
+ * the corresponding page on https://biblehub.com.
+ *
+ * The plugin avoids altering content within excluded tags such as <a>, <pre>, <code>, <script>, and <style>.
+ *
+ * Features:
+ * - Matches full and abbreviated book names
+ * - Supports numeric prefixes (e.g., 1 John, 2 Thess)
+ * - Detects and uses Bible versions in references (e.g., "John 3:16 NIV")
+ * - Prevents duplicate linking and preserves document structure using DOM parsing
+ * - Outputs anchor tags linking to BibleHub-formatted URLs
+ *
+ * @author David Castle
+ * @version 1.0
+ * @package BibleHubLinker
+ * @license GPLv2 or later
+ * @link https://biblehub.com
  */
 
+// Hook into 'the_content' filter to modify post content before display
 add_filter('the_content', 'bhl_link_bible_references', 20);
 
 function bhl_link_bible_references($content) {
+    // Suppress warnings from malformed HTML
     libxml_use_internal_errors(true);
+
+    // Load the post content into a DOMDocument for structured parsing
     $doc = new DOMDocument();
     $doc->loadHTML('<?xml encoding="utf-8" ?>' . $content);
     $xpath = new DOMXPath($doc);
 
-    // Tags to exclude
+    // List of HTML tags to ignore when replacing Bible references
     $excludeTags = ['a', 'pre', 'code', 'script', 'style'];
+
+    // Create an XPath expression that excludes text within the above tags
     $excludeXPath = implode(' or ', array_map(fn($tag) => "ancestor::{$tag}", $excludeTags));
 
+    // Get all text nodes that are not inside excluded tags
     $textNodes = $xpath->query("//text()[not($excludeXPath)]");
 
-    // Book and abbreviation map
+    // Map of full book names to their common abbreviations
     $bookMap = [
         'genesis' => ['gen'],
         'exodus' => ['ex', 'exod'],
@@ -45,6 +71,7 @@ function bhl_link_bible_references($content) {
         'revelation' => ['rev'],
     ];
 
+    // Create a reverse lookup for abbreviation to full book name
     $abbrevToBook = [];
     foreach ($bookMap as $book => $abbrevs) {
         $abbrevToBook[$book] = $book;
@@ -53,45 +80,63 @@ function bhl_link_bible_references($content) {
         }
     }
 
+    // Sort the book keys by length (longest first) to match multi-word books correctly
     uksort($abbrevToBook, fn($a, $b) => strlen($b) - strlen($a));
+
+    // Create a regex pattern for all known book names and abbreviations
     $bookRegex = implode('|', array_map(fn($b) => preg_quote($b, '/'), array_keys($abbrevToBook)));
 
+    // Supported Bible versions used on BibleHub (uppercase for regex match)
     $bibleVersions = ['kjv', 'niv', 'nlt', 'esv', 'nasb', 'csb', 'net', 'web'];
 
+    // Build the final regex pattern for Bible references, including optional version suffix
     $pattern = '/\b(?:(1|2|3)\s)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_map('strtoupper', $bibleVersions)) . ')[\]\)]*)?/i';
 
+    // Process each eligible text node
     foreach ($textNodes as $textNode) {
         $original = $textNode->nodeValue;
 
+        // Replace matched Bible references with links to BibleHub
         $newHtml = preg_replace_callback($pattern, function ($matches) use ($abbrevToBook) {
+            // Extract optional numeric prefix (e.g., "1" for "1 John")
             $prefix = isset($matches[1]) ? $matches[1] . ' ' : '';
+
+            // Normalize the matched book abbreviation
             $rawBook = strtolower(trim($matches[2]));
+            $mappedBook = $abbrevToBook[$rawBook] ?? $rawBook;
 
-            $book = $prefix . ($abbrevToBook[$rawBook] ?? $rawBook);
+            // Avoid double-prefixing (e.g., "1 1 John")
+            if (preg_match('/^(1|2|3)\s/i', $mappedBook)) {
+                $book = $mappedBook;
+            } else {
+                $book = $prefix . $mappedBook;
+            }
 
+            // Convert book name to BibleHub URL format (e.g., "1 john" → "1_john")
             $bookPath = str_replace(' ', '_', strtolower($book));
 
+            // Get chapter and optional verse
             $chapter = $matches[3];
             $verse = $matches[4] ?? null;
+
+            // Get Bible version or use default "parallel"
             $version = strtolower($matches[5] ?? 'parallel');
 
-            // Fix proper title case: capitalize each word, preserving numeric prefixes
+            // Capitalize book name properly (e.g., "1 john" → "1 John")
             $refTextBook = implode(' ', array_map(function($word) {
                 return is_numeric($word) ? $word : ucfirst($word);
             }, explode(' ', $book)));
 
+            // Build the reference display text (e.g., "1 John 4:8 NLT")
             $refText = $refTextBook . ' ' . $chapter . ($verse ? ':' . $verse : '');
             if (isset($matches[5])) {
                 $refText .= ' ' . strtoupper($version);
             }
 
-            if (isset($matches[5])) {
-                $refText .= ' ' . strtoupper($version);
-            }
-
-            // Trim extraneous whitespace from previous operations
+            // Trim to clean up any extra spacing
             $refText = trim($refText);
 
+            // Construct the BibleHub URL
             if ($version === 'parallel') {
                 $url = "https://biblehub.com/$bookPath/$chapter";
             } else {
@@ -99,9 +144,11 @@ function bhl_link_bible_references($content) {
             }
             $url .= $verse ? "-$verse.htm" : ".htm";
 
+            // Return the anchor tag for the matched reference
             return "<a href=\"$url\" target=\"_blank\" rel=\"noopener noreferrer\">$refText</a>";
         }, $original);
 
+        // If replacements were made, insert updated HTML into the DOM
         if ($newHtml !== $original) {
             $fragment = $doc->createDocumentFragment();
             @$fragment->appendXML($newHtml);
@@ -109,6 +156,7 @@ function bhl_link_bible_references($content) {
         }
     }
 
+    // Extract modified content from the <body> tag and return as post content
     $body = $doc->getElementsByTagName('body')->item(0);
     $newContent = '';
     foreach ($body->childNodes as $child) {
