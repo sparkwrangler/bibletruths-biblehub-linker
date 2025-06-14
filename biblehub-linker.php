@@ -1,5 +1,10 @@
 <?php
 /**
+ * Plugin Name: BibleHub Linker
+ * Description: Automatically links Bible references to BibleHub.
+ * Version: 1.0
+ * Author: David Castle
+ *
  * @file
  * @brief WordPress plugin that detects Bible references in post content and links them to BibleHub.
  *
@@ -113,7 +118,7 @@ function bhl_link_bible_references($content) {
             }
 
             // Convert book name to BibleHub URL format (e.g., "1 john" → "1_john")
-            $bookPath = str_replace(' ', '_', strtolower($book));
+            $bookPath = str_replace(' ', '_', strtolower(trim($book)));
 
             // Get chapter and optional verse
             $chapter = $matches[3];
