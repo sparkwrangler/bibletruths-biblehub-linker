@@ -55,6 +55,9 @@ function bhl_link_bible_references($content) {
     $bookMap = [
         'genesis' => ['gen'],
         'exodus' => ['ex', 'exod'],
+        'leviticus' => ['lev'],
+        'numbers' => ['num'],
+        'deuteronomy' => ['deut'],
         '1 chronicles' => ['1 chron'],
         '2 chronicles' => ['2 chron'],
         'psalms' => ['ps', 'psa'],
@@ -67,6 +70,8 @@ function bhl_link_bible_references($content) {
         'romans' => ['rom'],
         '1 corinthians' => ['1 cor'],
         '2 corinthians' => ['2 cor'],
+        'galatians' => ['gal'],
+        'ephesians' => ['eph'],
         '1 thessalonians' => ['1 thess', '1 thes'],
         '2 thessalonians' => ['2 thess', '2 thes'],
         'song of solomon' => ['song', 'song of songs'],
