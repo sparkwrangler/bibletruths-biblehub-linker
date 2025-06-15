@@ -172,15 +172,12 @@ function bhl_link_bible_references($content) {
             $refText = trim($refText);
 
             // Construct the BibleHub URL
-            if ($version === 'parallel') {
-                $url = "https://biblehub.com/$bookPath/$chapter";
-            } else {
-                $url = "https://biblehub.com/$version/$bookPath/$chapter";
-            }
-            // Append verse if valid AND not a range
-            // This has the side-effect of displaying chapters for ranges of verses
             if (!is_null($verse) && !strpos($verse, '-')) {
-                $url .= $verse ? "-$verse.htm" : ".htm";
+                $url = "https://biblehub.com/$bookPath/$chapter-$verse.htm";
+            } elseif ($version !== 'parallel') {
+                $url = "https://biblehub.com/$version/$bookPath/$chapter";
+            } else {
+                $url = "https://biblehub.com/nlt/$bookPath/$chapter";
             }
 
             // Return the anchor tag for the matched reference
