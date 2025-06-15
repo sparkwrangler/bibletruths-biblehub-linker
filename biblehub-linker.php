@@ -94,7 +94,32 @@ function bhl_link_bible_references($content) {
     // Supported Bible versions used on BibleHub (uppercase for regex match)
     $bibleVersions = ['kjv', 'niv', 'nlt', 'esv', 'nasb', 'csb', 'net', 'web'];
 
-    // Build the final regex pattern for Bible references, including optional version suffix
+    /**
+     * @var string $pattern
+      * @brief Regular expression pattern for matching Bible verse references in post content.
+      *
+      * @details
+      * This pattern identifies and captures common Bible verse formats in post content.
+      * It supports:
+      * - Optional numeric book prefixes (e.g., "1", "2", "3" for "1 John", "2 Corinthians")
+      * - Full and abbreviated book names (e.g., "John", "Jn", "1 Thess", "Song of Solomon")
+      * - Required chapter numbers and optional verses or verse ranges (e.g., "John 3", "John 3:16", "1 Cor 13:4-7")
+      * - Optional Bible version indicators (e.g., "KJV", "NLT", "NIV") with flexible formatting (e.g., "John 3:16 (NLT)")
+      *
+      * Regex structure:
+      * @code
+      * \b
+      * (?:(1|2|3)\s)?               // Optional numeric prefix (e.g., "1 ", "2 ")
+      * (bookRegex)                 // Full or abbreviated book name
+      * [\s\.]+                     // Space or period after book name
+      * (\d+)                       // Chapter number (required)
+      * (?::(\d+(?:-\d+)?))?        // Optional verse number or verse range
+      * (?:[\s\-\[\(]*([A-Z]+)[\]\)]*)? // Optional Bible version (e.g., KJV, NLT), enclosed in brackets or preceded by dash/space
+      * @endcode
+      *
+      * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
+      * that converts matched references into hyperlinks to the appropriate page on BibleHub.
+      */
     $pattern = '/\b(?:(1|2|3)\s)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_map('strtoupper', $bibleVersions)) . ')[\]\)]*)?/i';
 
     // Process each eligible text node
