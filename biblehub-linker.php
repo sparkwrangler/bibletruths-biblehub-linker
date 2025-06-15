@@ -175,9 +175,9 @@ function bhl_link_bible_references($content) {
             if (!is_null($verse) && !strpos($verse, '-')) {
                 $url = "https://biblehub.com/$bookPath/$chapter-$verse.htm";
             } elseif ($version !== 'parallel') {
-                $url = "https://biblehub.com/$version/$bookPath/$chapter";
+                $url = "https://biblehub.com/$version/$bookPath/$chapter.htm";
             } else {
-                $url = "https://biblehub.com/nlt/$bookPath/$chapter";
+                $url = "https://biblehub.com/nlt/$bookPath/$chapter.htm";
             }
 
             // Return the anchor tag for the matched reference
