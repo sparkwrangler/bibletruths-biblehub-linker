@@ -168,7 +168,7 @@ function bhl_link_bible_references($content) {
                 $refText .= ' ' . strtoupper($version);
             }
 
-            // Trim to clean up any extra spacing
+            // Trim to remove any extra spacing
             $refText = trim($refText);
 
             // Construct the BibleHub URL
@@ -177,7 +177,11 @@ function bhl_link_bible_references($content) {
             } else {
                 $url = "https://biblehub.com/$version/$bookPath/$chapter";
             }
-            $url .= $verse ? "-$verse.htm" : ".htm";
+            // Append verse if valid AND not a range
+            // This has the side-effect of displaying chapters for ranges of verses
+            if (!is_null($verse) && !strpos($verse, '-')) {
+                $url .= $verse ? "-$verse.htm" : ".htm";
+            }
 
             // Return the anchor tag for the matched reference
             return "<a href=\"$url\" target=\"_blank\" rel=\"noopener noreferrer\">$refText</a>";
