@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BibleHub Linker
  * Description: Automatically links Bible references to BibleHub.
- * Version: 1.0
+ * Version: 1.1
  * Author: David Castle
  *
  * @file
@@ -24,7 +24,7 @@
  * - Outputs anchor tags linking to BibleHub-formatted URLs
  *
  * @author David Castle
- * @version 1.0
+ * @version 1.1
  * @package BibleHubLinker
  * @license GPLv2 or later
  * @link https://biblehub.com
@@ -153,11 +153,11 @@ function bhl_link_bible_references($content) {
       * Regex structure:
       * @code
       * \b
-      * (?:(1|2|3)\s)?               // Optional numeric prefix (e.g., "1 ", "2 ")
-      * (bookRegex)                 // Full or abbreviated book name
-      * [\s\.]+                     // Space or period after book name
-      * (\d+)                       // Chapter number (required)
-      * (?::(\d+(?:-\d+)?))?        // Optional verse number or verse range
+      * (?:(1|2|3)\s+)?             	// Optional numeric prefix (e.g., "1 ", "2 ")
+      * (bookRegex)                 	// Full or abbreviated book name
+      * [\s\.]+                     	// Space or period after book name
+      * (\d+)                       	// Chapter number (required)
+      * (?::(\d+(?:-\d+)?))?        	// Optional verse number or verse range
       * (?:[\s\-\[\(]*([A-Z]+)[\]\)]*)? // Optional Bible version (e.g., KJV, NLT), enclosed in brackets or preceded by dash/space
       * @endcode
       *
