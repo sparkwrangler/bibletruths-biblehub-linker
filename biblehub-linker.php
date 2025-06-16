@@ -209,8 +209,14 @@ function bhl_link_bible_references($content) {
 
             // Trim to remove any extra spacing
             $refText = trim($refText);
+	    // Enclose within nobr tag to keep from wrapping references
+	    $refText = '<nobr>' . $refText . '</nobr>';
 
             // Construct the BibleHub URL
+            // TODO: Add Biblegateway url for MSG and PHILLIPS versions
+	    // - chapter and verse (with optional version) --> parallel verse lookup
+            // - chapter (with optional verse range) and version --> version chapter
+            // - chapter only (without verse or version) --> default to NLT version
             if (!is_null($verse) && !strpos($verse, '-')) {
                 $url = "https://biblehub.com/$bookPath/$chapter-$verse.htm";
             } elseif ($version !== 'parallel') {
