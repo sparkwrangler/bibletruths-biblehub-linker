@@ -136,7 +136,8 @@ function bhl_link_bible_references($content) {
     $bookRegex = implode('|', array_map(fn($b) => preg_quote($b, '/'), array_keys($abbrevToBook)));
 
     // Supported Bible versions used on BibleHub (uppercase for regex match)
-    $bibleVersions = ['kjv', 'niv', 'nlt', 'esv', 'nasb', 'csb', 'net', 'web'];
+    $biblehubVersions = ['kjv', 'niv', 'nlt', 'esv', 'nasb', 'csb', 'net', 'web'];
+    $gatewayVersions = ['amp', 'msg', 'phillip'];
 
     /**
      * @var string $pattern
@@ -164,7 +165,7 @@ function bhl_link_bible_references($content) {
       * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
       * that converts matched references into hyperlinks to the appropriate page on BibleHub.
       */
-    $pattern = '/\b(?:(1|2|3)\s)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_map('strtoupper', $bibleVersions)) . ')[\]\)]*)?/i';
+    $pattern = '/\b(?:(1|2|3|I|II|III)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', $biblehubVersions) . ')[\]\)]*)?/i';
 
     // Process each eligible text node
     foreach ($textNodes as $textNode) {
