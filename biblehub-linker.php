@@ -210,8 +210,8 @@ function bhl_link_bible_references($content) {
 
             // Trim to remove any extra spacing
             $refText = trim($refText);
-	    // Enclose within nobr tag to keep from wrapping references
-	    $refText = '<nobr>' . $refText . '</nobr>';
+	    // Keep from wrapping references
+	    $refText = preg_rep(" ", "&nbsp;", $refText);
 
             // Construct the Biblegateway URL
 	    if (in_array($version, $gatewayVersions)) {
