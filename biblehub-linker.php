@@ -165,7 +165,7 @@ function bhl_link_bible_references($content) {
       * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
       * that converts matched references into hyperlinks to the appropriate page on BibleHub.
       */
-    $pattern = '/\b(?:(1|2|3|I|II|III)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', $biblehubVersions + $gatewayVersions) . ')[\]\)]*)?/i';
+    $pattern = '/\b(?:(1|2|3|I|II|III)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
 
     // Process each eligible text node
     foreach ($textNodes as $textNode) {
