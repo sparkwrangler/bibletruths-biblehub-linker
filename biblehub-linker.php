@@ -137,7 +137,7 @@ function bhl_link_bible_references($content) {
 
     // Supported Bible versions used on BibleHub (uppercase for regex match)
     $biblehubVersions = ['kjv', 'niv', 'nlt', 'esv', 'nasb', 'csb', 'net', 'web'];
-    $gatewayVersions = ['amp', 'msg', 'phillip'];
+    $gatewayVersions = ['amp', 'msg', 'phillips'];
 
     /**
      * @var string $pattern
