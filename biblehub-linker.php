@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BibleHub Linker
  * Description: Automatically links Bible references to BibleHub.
- * Version: 1.1
+ * Version: 1.2
  * Author: David Castle
  *
  * @file
@@ -24,7 +24,7 @@
  * - Outputs anchor tags linking to BibleHub-formatted URLs
  *
  * @author David Castle
- * @version 1.1
+ * @version 1.2
  * @package BibleHubLinker
  * @license GPLv2 or later
  * @link https://biblehub.com
@@ -211,11 +211,11 @@ function bhl_link_bible_references($content) {
             // Trim to remove any extra spacing
             $refText = trim($refText);
 	    // Keep from wrapping references
-	    //$refText = preg_replace(" ", "&nbsp;", $refText);
+	    //$refText = preg_replace('/\s/', '&nbsp;', $refText);
 
             // Construct the Biblegateway URL
 	    if (in_array($version, $gatewayVersions)) {
-	        $url = "https://www.biblegateway.com/passage/?search=" . $bookPath . "%20" . $chapter . "-" . $verse . "&version=" . $version;
+	        $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
 	    // Construct the BibleHub URL
 	    // - chapter and verse (with optional version) --> parallel verse lookup
             // - chapter (with optional verse range) and version --> version chapter
