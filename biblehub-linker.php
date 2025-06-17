@@ -165,7 +165,7 @@ function bhl_link_bible_references($content) {
       * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
       * that converts matched references into hyperlinks to the appropriate page on BibleHub.
       */
-    $pattern = '/\b(?:(1|2|3|I|II|III)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', $biblehubVersions) . ')[\]\)]*)?/i';
+    $pattern = '/\b(?:(1|2|3|I|II|III)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', $biblehubVersions + $gatewayVersions) . ')[\]\)]*)?/i';
 
     // Process each eligible text node
     foreach ($textNodes as $textNode) {
@@ -213,12 +213,14 @@ function bhl_link_bible_references($content) {
 	    // Enclose within nobr tag to keep from wrapping references
 	    $refText = '<nobr>' . $refText . '</nobr>';
 
-            // Construct the BibleHub URL
-            // TODO: Add Biblegateway url for MSG and PHILLIPS versions
+            // Construct the Biblegateway URL
+	    if (in_array($version, $gatewayVersions)) {
+	        $url = "https://www.biblegateway.com/passage/?search=" . $bookPath . "%20" . $chapter . "-" . $verse . "&version=" . $version;
+	    // Construct the BibleHub URL
 	    // - chapter and verse (with optional version) --> parallel verse lookup
             // - chapter (with optional verse range) and version --> version chapter
             // - chapter only (without verse or version) --> default to NLT version
-            if (!is_null($verse) && !strpos($verse, '-')) {
+            } elseif (!is_null($verse) && !strpos($verse, '-')) {
                 $url = "https://biblehub.com/$bookPath/$chapter-$verse.htm";
             } elseif ($version !== 'parallel') {
                 $url = "https://biblehub.com/$version/$bookPath/$chapter.htm";
