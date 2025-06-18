@@ -103,6 +103,7 @@ function bhl_link_bible_references($content) {
         'galatians' => ['gal'],
         'ephesians' => ['eph'],
 	'philippians' => ['phil', 'php'],
+	'colossians' => ['col'],
         '1 thessalonians' => ['1 thess', '1 thes','1th'],
         '2 thessalonians' => ['2 thess', '2 thes','2th'],
         '1 timothy' => ['1 tim','1ti'],
@@ -116,7 +117,7 @@ function bhl_link_bible_references($content) {
         '1 john' => ['1 jn','1jo'],
         '2 john' => ['2 jn','2jo'],
         '3 john' => ['3 jn','3jo'],
-	'jude' => ['jude','jde'],
+	'jude' => ['jde'],
         'revelation' => ['rev'],
     ];
 
@@ -208,9 +209,6 @@ function bhl_link_bible_references($content) {
                 $refText .= ' ' . strtoupper($version);
             }
 
-            // Non-wrapping without any extra spaces.
-            //$refText = preg_replace('/\s/', '&nbsp;', trim($refText));
-
             // Construct the Biblegateway URL
 	    if (in_array($version, $gatewayVersions) && !is_null($verse) && !strpos($verse, '-')) {
 	        $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
@@ -227,7 +225,7 @@ function bhl_link_bible_references($content) {
             }
 
             // Return the anchor tag for the matched reference
-            return "<a href=\"$url\" target=\"_blank\" rel=\"noopener noreferrer\">$refText</a>";
+            return "<a href=\"$url\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"white-space: nowrap;\">$refText</a>";
         }, $original);
 
         // If replacements were made, insert updated HTML into the DOM
