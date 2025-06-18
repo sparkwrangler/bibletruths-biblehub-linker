@@ -209,7 +209,7 @@ function bhl_link_bible_references($content) {
             }
 
             // Non-wrapping without any extra spaces.
-            $refText = preg_replace('/\s/', '&nbsp;', trim($refText));
+            $refText = preg_replace('/ /', '&nbsp;', trim($refText));
 
             // Construct the Biblegateway URL
 	    if (in_array($version, $gatewayVersions) && !is_null($verse) && !strpos($verse, '-')) {
