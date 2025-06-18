@@ -165,7 +165,7 @@ function bhl_link_bible_references($content) {
       * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
       * that converts matched references into hyperlinks to the appropriate page on BibleHub.
       */
-    $pattern = '/\b(?:(1|2|3|I|II|III)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
+    $pattern = '/\b(?:(1|2|3)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
 
     // Process each eligible text node
     foreach ($textNodes as $textNode) {
@@ -208,13 +208,11 @@ function bhl_link_bible_references($content) {
                 $refText .= ' ' . strtoupper($version);
             }
 
-            // Trim to remove any extra spacing
-            $refText = trim($refText);
-	    // Keep from wrapping references
-	    //$refText = preg_replace('/\s/', '&nbsp;', $refText);
+            // Non-wrapping without any extra spaces.
+            $refText = preg_replace('/\s/', '&nbsp;', trim($refText));
 
             // Construct the Biblegateway URL
-	    if (in_array($version, $gatewayVersions)) {
+	    if (in_array($version, $gatewayVersions) && !is_null($verse) && !strpos($verse, '-')) {
 	        $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
 	    // Construct the BibleHub URL
 	    // - chapter and verse (with optional version) --> parallel verse lookup
