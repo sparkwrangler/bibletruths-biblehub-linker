@@ -117,7 +117,7 @@ function bhl_link_bible_references($content) {
         '1 john' => ['1 jn','1jo'],
         '2 john' => ['2 jn','2jo'],
         '3 john' => ['3 jn','3jo'],
-	'jude' => ['jde'],
+	'jude' => ['jude','jde'],
         'revelation' => ['rev'],
     ];
 
@@ -188,7 +188,7 @@ function bhl_link_bible_references($content) {
                 $book = $prefix . $mappedBook;
             }
 
-            // Convert book name to BibleHub URL format (e.g., "1 john" → "1_john")
+            // Convert book name to BibleHub URL format (e.g., "1 john" â†’ "1_john")
             $bookPath = str_replace(' ', '_', strtolower(trim($book)));
 
             // Get chapter and optional verse
@@ -198,7 +198,7 @@ function bhl_link_bible_references($content) {
             // Get Bible version or use default "parallel"
             $version = strtolower($matches[5] ?? 'parallel');
 
-            // Capitalize book name properly (e.g., "1 john" → "1 John")
+            // Capitalize book name properly (e.g., "1 john" â†’ "1 John")
             $refTextBook = implode(' ', array_map(function($word) {
                 return is_numeric($word) ? $word : ucfirst($word);
             }, explode(' ', $book)));
@@ -225,6 +225,7 @@ function bhl_link_bible_references($content) {
             }
 
             // Return the anchor tag for the matched reference
+	    // $refText = preg_replace('/\s/', '&nbsp;', $refText); // Fails for UTF-8
             return "<a href=\"$url\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"white-space: nowrap;\">$refText</a>";
         }, $original);
 
