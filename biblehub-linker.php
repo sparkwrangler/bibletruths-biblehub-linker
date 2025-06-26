@@ -96,14 +96,14 @@ function bhl_link_bible_references($content) {
         'mark' => ['mk','mar'],
         'luke' => ['lk','luk'],
         'john' => ['joh','jn', 'jhn'],
-	'acts' => ['act'],
+        'acts' => ['act'],
         'romans' => ['rom'],
         '1 corinthians' => ['1 cor','1co'],
         '2 corinthians' => ['2 cor','2co'],
         'galatians' => ['gal'],
         'ephesians' => ['eph'],
-	'philippians' => ['phil', 'php'],
-	'colossians' => ['col'],
+        'philippians' => ['phil', 'php'],
+        'colossians' => ['col'],
         '1 thessalonians' => ['1 thess', '1 thes','1th'],
         '2 thessalonians' => ['2 thess', '2 thes','2th'],
         '1 timothy' => ['1 tim','1ti'],
@@ -112,12 +112,12 @@ function bhl_link_bible_references($content) {
         'philemon' => ['plmn','pmn'],
         'hebrews' => ['heb'],
         'james' => ['jas'],
-	'1 peter' => ['1 pet','1pe'],
+        '1 peter' => ['1 pet','1pe'],
         '2 peter' => ['2 pet','2pe'],
         '1 john' => ['1 jn','1jo'],
         '2 john' => ['2 jn','2jo'],
         '3 john' => ['3 jn','3jo'],
-	'jude' => ['jude','jde'],
+        'jude' => ['jude','jde'],
         'revelation' => ['rev'],
     ];
 
@@ -138,7 +138,7 @@ function bhl_link_bible_references($content) {
 
     // Supported Bible versions used on BibleHub (uppercase for regex match)
     $biblehubVersions = ['kjv', 'niv', 'nlt', 'esv', 'nasb', 'csb', 'net', 'web'];
-    $gatewayVersions = ['amp', 'msg', 'phillips'];
+    $gatewayVersions = ['amp', 'gwt', 'msg', 'phillips'];
 
     /**
      * @var string $pattern
@@ -166,7 +166,7 @@ function bhl_link_bible_references($content) {
       * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
       * that converts matched references into hyperlinks to the appropriate page on BibleHub.
       */
-    $pattern = '/\b(?:(1|2|3)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
+    $pattern = '/\b(?:(1|2|3)\s*)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
 
     // Process each eligible text node
     foreach ($textNodes as $textNode) {
@@ -193,10 +193,10 @@ function bhl_link_bible_references($content) {
 
             // Get chapter and optional verse
             $chapter = $matches[3];
-            $verse = $matches[4] ?? null;
+            $verse = $matches[4]; // ?? null;
 
             // Get Bible version or use default "parallel"
-            $version = strtolower($matches[5] ?? 'parallel');
+            $version = strtolower(trim($matches[5] ?? 'parallel'));
 
             // Capitalize book name properly (e.g., "1 john" â†’ "1 John")
             $refTextBook = implode(' ', array_map(function($word) {
@@ -204,19 +204,19 @@ function bhl_link_bible_references($content) {
             }, explode(' ', $book)));
 
             // Build the reference display text (e.g., "1 John 4:8 NLT")
-            $refText = $refTextBook . ' ' . $chapter . ($verse ? ':' . $verse : '');
+            $refText = trim($refTextBook) . ' ' . $chapter . ($verse ? ':' . $verse : '');
             if (isset($matches[5])) {
                 $refText .= ' ' . strtoupper($version);
             }
 
             // Construct the Biblegateway URL
-	    if (in_array($version, $gatewayVersions) && !is_null($verse) && !strpos($verse, '-')) {
-	        $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
-	    // Construct the BibleHub URL
-	    // - chapter and verse (with optional version) --> parallel verse lookup
+	        if (in_array($version, $gatewayVersions) && $verse !== null && strpos($verse, '-') === false) {
+	            $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
+	        // Construct the BibleHub URL
+	        // - chapter and verse (with optional version) --> parallel verse lookup
             // - chapter (with optional verse range) and version --> version chapter
             // - chapter only (without verse or version) --> default to NLT version
-            } elseif (!is_null($verse) && !strpos($verse, '-')) {
+            } elseif ($verse && strpos($verse, '-') === false) {
                 $url = "https://biblehub.com/$bookPath/$chapter-$verse.htm";
             } elseif ($version !== 'parallel') {
                 $url = "https://biblehub.com/$version/$bookPath/$chapter.htm";
