@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BibleHub Linker
  * Description: Automatically links Bible references to BibleHub.
- * Version: 1.5
+ * Version: 1.6
  * Author: David Castle
  *
  * @file
@@ -24,7 +24,7 @@
  * - Outputs anchor tags linking to BibleHub-formatted URLs
  *
  * @author David Castle
- * @version 1.5
+ * @version 1.6
  * @package BibleHubLinker
  * @license GPLv2 or later
  * @link https://biblehub.com
@@ -202,11 +202,8 @@ function bhl_link_bible_references($content) {
             // Get Bible version or use default "parallel"
             $version = strtolower($matches[5] ?? 'parallel');
 
-            // Capitalize book name properly (e.g., "1 john" → "1 John")
-            // TODO: $refTextBook = ucfirst( $book );
-            $refTextBook = implode(' ', array_map(function($word) {
-                return is_numeric($word) ? $word : ucfirst($word);
-            }, explode(' ', $book)));
+            // Capitalize book name properly (e.g., "1 john" --> "1 John")
+            $refTextBook = ucwords( $book );
 
             // Build the reference display text (e.g., "1 John 4:8 NLT")
             $refText = trim($refTextBook) . ' ' . $chapter . ($verse ? ':' . $verse : '');
