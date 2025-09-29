@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BibleHub Linker
  * Description: Automatically links Bible references to BibleHub.
- * Version: 1.3
+ * Version: 1.4
  * Author: David Castle
  *
  * @file
@@ -24,7 +24,7 @@
  * - Outputs anchor tags linking to BibleHub-formatted URLs
  *
  * @author David Castle
- * @version 1.3
+ * @version 1.4
  * @package BibleHubLinker
  * @license GPLv2 or later
  * @link https://biblehub.com
@@ -117,7 +117,7 @@ function bhl_link_bible_references($content) {
         '1 john' => ['1 jn','1jo'],
         '2 john' => ['2 jn','2jo'],
         '3 john' => ['3 jn','3jo'],
-        'jude' => ['jude','jde'],
+	'jude' => ['jde'],
         'revelation' => ['rev'],
     ];
 
@@ -166,7 +166,7 @@ function bhl_link_bible_references($content) {
       * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
       * that converts matched references into hyperlinks to the appropriate page on BibleHub.
       */
-    $pattern = '/\b(?:(1|2|3)\s*)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:-\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
+    $pattern = '/\b(?:(1|2|3)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:[-–—]\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
 
     // Process each eligible text node
     foreach ($textNodes as $textNode) {
@@ -188,17 +188,17 @@ function bhl_link_bible_references($content) {
                 $book = $prefix . $mappedBook;
             }
 
-            // Convert book name to BibleHub URL format (e.g., "1 john" â†’ "1_john")
+            // Convert book name to BibleHub URL format (e.g., "1 john" --> "1_john")
             $bookPath = str_replace(' ', '_', strtolower(trim($book)));
 
             // Get chapter and optional verse
             $chapter = $matches[3];
-            $verse = $matches[4]; // ?? null;
+            $verse = $matches[4] ?? null;
 
             // Get Bible version or use default "parallel"
-            $version = strtolower(trim($matches[5] ?? 'parallel'));
+            $version = strtolower($matches[5] ?? 'parallel');
 
-            // Capitalize book name properly (e.g., "1 john" â†’ "1 John")
+            // Capitalize book name properly (e.g., "1 john" --> "1 John")
             $refTextBook = implode(' ', array_map(function($word) {
                 return is_numeric($word) ? $word : ucfirst($word);
             }, explode(' ', $book)));
@@ -210,13 +210,15 @@ function bhl_link_bible_references($content) {
             }
 
             // Construct the Biblegateway URL
-	        if (in_array($version, $gatewayVersions) && $verse && strpos($verse, '-') === false) {
-	            $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
+	        // TODO: Fix this for biblegateway links
+            //if (in_array($version, $gatewayVersions) && !is_null($verse) && !strpos($verse, '-')) {
+	        //    $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
 	        // Construct the BibleHub URL
 	        // - chapter and verse (with optional version) --> parallel verse lookup
             // - chapter (with optional verse range) and version --> version chapter
             // - chapter only (without verse or version) --> default to NLT version
-            } elseif ($verse && strpos($verse, '-') === false) {
+            //} elseif (!is_null($verse) && !strpos($verse, '-')) {
+            if (!is_null($verse) && !strpos($verse, '-')) {
                 $url = "https://biblehub.com/$bookPath/$chapter-$verse.htm";
             } elseif ($version !== 'parallel') {
                 $url = "https://biblehub.com/$version/$bookPath/$chapter.htm";
