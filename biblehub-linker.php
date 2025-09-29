@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: BibleHub Linker
+ * Plugin Name: Bibletruths Wordpress BibleHub Linker
  * Description: Automatically links Bible references to BibleHub.
  * Version: 1.6
  * Author: David Castle
