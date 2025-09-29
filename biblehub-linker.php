@@ -61,12 +61,12 @@ function bhl_link_bible_references($content) {
         'joshua' => ['josh', 'jos'],
         'judges' => ['judg', 'jud'],
         'ruth' => ['ruth'],
-        '1_samuel' => ['1_sam', '1sa'],
-        '2_samuel' => ['2_sam', '2sa'],
-        '1_kings' => ['1_kngs', '1ki'],
-        '2_kings' => ['2_kngs', '2ki'],
-        '1_chronicles' => ['1_chr', '1ch', '1 chron'],
-        '2_chronicles' => ['2_chr', '2ch', '2 chron'],
+        '1 samuel' => ['1_sam', '1sa'],
+        '2 samuel' => ['2_sam', '2sa'],
+        '1 kings' => ['1_kngs', '1ki'],
+        '2 kings' => ['2_kngs', '2ki'],
+        '1 chronicles' => ['1_chr', '1ch', '1 chron'],
+        '2 chronicles' => ['2_chr', '2ch', '2 chron'],
         'ezra' => ['ezra','ezr'],
         'nehemiah' => ['neh'],
         'esther' => ['est'],
@@ -139,6 +139,7 @@ function bhl_link_bible_references($content) {
     // Supported Bible versions used on BibleHub (uppercase for regex match)
     $biblehubVersions = ['kjv', 'niv', 'nlt', 'esv', 'nasb', 'csb', 'net', 'web'];
     $gatewayVersions = ['amp', 'gwt', 'msg', 'phillips'];
+    $versionRegex = implode('|', array_merge($biblehubVersions, $gatewayVersions));
 
     /**
      * @var string $pattern
@@ -198,7 +199,8 @@ function bhl_link_bible_references($content) {
             // Get Bible version or use default "parallel"
             $version = strtolower($matches[5] ?? 'parallel');
 
-            // Capitalize book name properly (e.g., "1 john" --> "1 John")
+            // Capitalize book name properly (e.g., "1 john" → "1 John")
+            // $refTextBook = ucfirst( $book );
             $refTextBook = implode(' ', array_map(function($word) {
                 return is_numeric($word) ? $word : ucfirst($word);
             }, explode(' ', $book)));
@@ -210,7 +212,7 @@ function bhl_link_bible_references($content) {
             }
 
             // Construct the Biblegateway URL
-	        // TODO: Fix this for biblegateway links
+	    // TODO: Fix this for biblegateway links
             //if (in_array($version, $gatewayVersions) && !is_null($verse) && !strpos($verse, '-')) {
 	        //    $url = "https://www.biblegateway.com/passage/?search=$bookPath%20$chapter-$verse&version=$version";
 	        // Construct the BibleHub URL
