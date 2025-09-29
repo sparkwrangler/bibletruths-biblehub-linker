@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BibleHub Linker
  * Description: Automatically links Bible references to BibleHub.
- * Version: 1.4
+ * Version: 1.5
  * Author: David Castle
  *
  * @file
@@ -24,7 +24,7 @@
  * - Outputs anchor tags linking to BibleHub-formatted URLs
  *
  * @author David Castle
- * @version 1.4
+ * @version 1.5
  * @package BibleHubLinker
  * @license GPLv2 or later
  * @link https://biblehub.com
@@ -167,7 +167,8 @@ function bhl_link_bible_references($content) {
       * The pattern is used with case-insensitive and Unicode-aware matching and is integrated with a callback function
       * that converts matched references into hyperlinks to the appropriate page on BibleHub.
       */
-    $pattern = '/\b(?:(1|2|3)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:[-–—]\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/i';
+    $pattern = '/\b(?:(1|2|3)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:[-–—]\d+)?))?(?:[\s\-\[\(]*(' . implode('|', array_merge($biblehubVersions, $gatewayVersions)) . ')[\]\)]*)?/iu';
+    // TODO: $pattern = '/\b(?:(1|2|3)\s+)?(' . $bookRegex . ')[\s\.]+(\d+)(?::(\d+(?:[-–—]\d+|&[mn]dash;)?))?(?:[\s\-\[\(]*(' . $versionRegex . ')[\]\)]*)?/i';
 
     // Process each eligible text node
     foreach ($textNodes as $textNode) {
@@ -195,12 +196,14 @@ function bhl_link_bible_references($content) {
             // Get chapter and optional verse
             $chapter = $matches[3];
             $verse = $matches[4] ?? null;
+            // Replace any unicode dash with ASCII '-'
+            $verse = preg_replace('/[\x{2010}-\x{2015}\x{2212}\x{2043}\x{FE58}\x{FE63}\x{FF0D}]/u', '-', $verse);
 
             // Get Bible version or use default "parallel"
             $version = strtolower($matches[5] ?? 'parallel');
 
             // Capitalize book name properly (e.g., "1 john" → "1 John")
-            // $refTextBook = ucfirst( $book );
+            // TODO: $refTextBook = ucfirst( $book );
             $refTextBook = implode(' ', array_map(function($word) {
                 return is_numeric($word) ? $word : ucfirst($word);
             }, explode(' ', $book)));
